@@ -17,7 +17,6 @@ import { composeAssetConfig } from './asset/assetConfig';
 import {
   DEFAULT_CONFIG_EXTENSIONS,
   DEFAULT_CONFIG_NAME,
-  ENTRY_EXTENSIONS_PATTERN,
   JS_EXTENSIONS_PATTERN,
   RSLIB_ENTRY_QUERY,
   SWC_HELPERS,
@@ -957,9 +956,7 @@ const composeEntryConfig = async (
       });
 
       // Filter the glob resolved entry files based on the allowed extensions
-      const resolvedEntryFiles = globEntryFiles.filter((file) =>
-        ENTRY_EXTENSIONS_PATTERN.test(file),
-      );
+      const resolvedEntryFiles = globEntryFiles;
 
       if (resolvedEntryFiles.length === 0) {
         throw new Error(`Cannot find ${resolvedEntryFiles}`);
@@ -1106,6 +1103,7 @@ const composeBundlelessExternalConfig = (
                 styleRedirectPath,
                 styleRedirectExtension,
                 redirectPath,
+                issuer
               );
 
               if (cssExternal !== false) {
@@ -1136,7 +1134,10 @@ const composeBundlelessExternalConfig = (
                     );
                   } else {
                     // If it does not match jsExtensionsPattern, we should do nothing, eg: ./foo.png
-                    return callback();
+                    resolvedRequest = resolvedRequest.replace(
+                      /\.[^.]+$/,
+                      jsExtension,
+                    );
                   }
                 } else {
                   resolvedRequest = `${resolvedRequest}${jsExtension}`;

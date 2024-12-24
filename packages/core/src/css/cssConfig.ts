@@ -87,23 +87,28 @@ export async function cssExternalHandler(
   styleRedirectPath: boolean,
   styleRedirectExtension: boolean,
   redirectPath: (request: string) => Promise<string | undefined>,
+  issuer: string
 ): Promise<false | void> {
-  // cssExtract would execute the file handled by css-loader, so we cannot external the "helper import" from css-loader
-  // do not external @rsbuild/core/compiled/css-loader/noSourceMaps.js, sourceMaps.js, api.mjs etc.
+  // cssExtract: do not external @rsbuild/core/compiled/css-loader/noSourceMaps.js, sourceMaps.js, api.mjs etc.
+  // cssExtract would execute the result handled by css-loader with importModule, so we cannot external the "helper import" from css-loader
   if (/compiled\/css-loader\//.test(request)) {
     return callback();
   }
-
+  
   let resolvedRequest = request;
-
+  
   if (styleRedirectPath) {
     const resolved = await redirectPath(resolvedRequest);
     if (resolved) {
       resolvedRequest = resolved;
     }
   }
-
+  
   if (!isCssFile(resolvedRequest)) {
+    // cssExtract: do not external assets module import
+    if(isCssFile(issuer)) {
+      return callback();
+    }
     return false;
   }
 
