@@ -3,48 +3,49 @@ import { generateBundleEsmConfig } from 'test-helper';
 
 export default defineConfig({
   lib: [
+    // 0. bundle esm default
+    // generateBundleEsmConfig({
+    //   output: {
+    //     distPath: {
+    //       root: './dist/esm/bundle-default',
+    //     },
+    //   },
+    // }),
+    // 1. bundle esm inline
+    // generateBundleEsmConfig({
+    //   output: {
+    //     distPath: {
+    //       root: './dist/esm/bundle-inline',
+    //     },
+    //     dataUriLimit: {
+    //       svg: 4096,
+    //     },
+    //   },
+    // }),
+    // 2. bundleless esm default
+    // generateBundleEsmConfig({
+    //   bundle: false,
+    //   output: {
+    //     distPath: {
+    //       root: './dist/esm/bundleless-default',
+    //     },
+    //   },
+    // }),
+
+    // 3. bundleless esm inline
     generateBundleEsmConfig({
+      bundle: false,
       output: {
         distPath: {
-          root: './dist/esm/inline',
+          root: './dist/esm/bundleless-inline',
         },
         dataUriLimit: {
           svg: 4096,
         },
       },
     }),
-    generateBundleEsmConfig({
-      output: {
-        distPath: {
-          root: './dist/esm/external',
-        },
-      },
-    }),
-    generateBundleEsmConfig({
-      bundle: false,
-      output: {
-        distPath: {
-          root: './dist/esm/inline-bundleless',
-        },
-        dataUriLimit: {
-          svg: 4096,
-        },
-      },
-    }),
-    generateBundleEsmConfig({
-      bundle: false,
-      output: {
-        distPath: {
-          root: './dist/esm/external-bundleless',
-        },
-      },
-    }),
+    
   ],
-  source: {
-    entry: {
-      index: './src/index.js',
-    },
-  },
   output: {
     target: 'web',
   },

@@ -17,6 +17,7 @@ import { composeAssetConfig } from './asset/assetConfig';
 import {
   DEFAULT_CONFIG_EXTENSIONS,
   DEFAULT_CONFIG_NAME,
+  DTS_EXTENSIONS_PATTERN,
   JS_EXTENSIONS_PATTERN,
   RSLIB_ENTRY_QUERY,
   SWC_HELPERS,
@@ -956,7 +957,9 @@ const composeEntryConfig = async (
       });
 
       // Filter the glob resolved entry files based on the allowed extensions
-      const resolvedEntryFiles = globEntryFiles;
+      const resolvedEntryFiles = globEntryFiles.filter((i) => {
+        return !DTS_EXTENSIONS_PATTERN.test(i);
+      });
 
       if (resolvedEntryFiles.length === 0) {
         throw new Error(`Cannot find ${resolvedEntryFiles}`);
@@ -1103,7 +1106,7 @@ const composeBundlelessExternalConfig = (
                 styleRedirectPath,
                 styleRedirectExtension,
                 redirectPath,
-                issuer
+                issuer,
               );
 
               if (cssExternal !== false) {
