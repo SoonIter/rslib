@@ -7,7 +7,7 @@ export default defineConfig({
       output: {
         assetPrefix: '/public/path/bundleless',
       },
-    })
+    }),
   ],
   source: {
     entry: {

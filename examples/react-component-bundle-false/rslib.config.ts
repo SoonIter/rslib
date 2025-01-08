@@ -33,7 +33,7 @@ export default defineConfig({
   output: {
     target: 'web',
     assetPrefix: 'auto', // TODO: move this line to packages/core/src/asset/assetConfig.ts
-    dataUriLimit: 4000
+    dataUriLimit: 4000,
   },
   plugins: [pluginReact(), pluginSass()],
 });

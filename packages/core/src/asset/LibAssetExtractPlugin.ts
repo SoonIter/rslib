@@ -65,7 +65,8 @@ class LibAssetExtractPlugin implements Rspack.RspackPluginInstance {
           /js$/.test(name),
         );
         const isEsmFormat = compilation.options.output.module;
-        const canEntireFileReplacedDirectly = !this.options.bundle && !this.options.isUsingSvgr;
+        const canEntireFileReplacedDirectly =
+          !this.options.bundle && !this.options.isUsingSvgr;
         for (const name of chunkAsset) {
           const undoPath = getUndoPath(
             name,

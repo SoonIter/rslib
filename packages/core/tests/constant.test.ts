@@ -1,5 +1,9 @@
 import { expect, test } from 'vitest';
-import { CSS_EXTENSIONS_PATTERN, DTS_EXTENSIONS_PATTERN, JS_EXTENSIONS_PATTERN } from '../src/constant';
+import {
+  CSS_EXTENSIONS_PATTERN,
+  DTS_EXTENSIONS_PATTERN,
+  JS_EXTENSIONS_PATTERN,
+} from '../src/constant';
 
 const jsTestStrings = [
   { str: 'index.js', expected: true },
