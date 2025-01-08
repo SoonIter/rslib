@@ -74,7 +74,6 @@ class LibAssetExtractPlugin implements Rspack.RspackPluginInstance {
           );
           compilation.updateAsset(name, (old) => {
             const oldSource = old.source().toString();
-            console.log(canEntireFileReplacedDirectly, this.options)
 
             // bundleless
             if (canEntireFileReplacedDirectly) {

@@ -41,39 +41,8 @@ test('set the size threshold to inline static assets', async () => {
     "
   `);
   expect(logoJs2).toMatchInlineSnapshot(`
-    "var __webpack_modules__ = {
-        "./src/assets/logo.svg?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../static/svg/logo.svg');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    __webpack_require__("./src/assets/logo.svg?__rslib_entry__");
+    "import __rslib_asset__ from '../static/svg/logo.svg';
+    export default __rslib_asset__;
     "
   `);
   // cjs
@@ -86,56 +55,7 @@ test('set the size threshold to inline static assets', async () => {
     'const logo_cjs_namespaceObject = require("./assets/logo.cjs");',
   );
   expect(logoCjs2).toMatchInlineSnapshot(`
-    ""use strict";
-    var __webpack_modules__ = {
-        "./src/assets/logo.svg?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../static/svg/logo.svg');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-        var document = __webpack_require__.g.document;
-        if (!scriptUrl && document) {
-            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
-            if (!scriptUrl) {
-                var scripts = document.getElementsByTagName("script");
-                if (scripts.length) {
-                    var i = scripts.length - 1;
-                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
-                }
-            }
-        }
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    var __webpack_exports__ = __webpack_require__("./src/assets/logo.svg?__rslib_entry__");
-    var __webpack_export_target__ = exports;
-    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
-    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
-        value: true
-    });
+    "module.exports = require('../static/svg/logo.svg');
     "
   `);
 });
@@ -162,39 +82,8 @@ test('set the assets filename with hash', async () => {
     /assets\/image\.js/,
   );
   expect(imageJs1).toMatchInlineSnapshot(`
-    "var __webpack_modules__ = {
-        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../static/image/image.c74653c1712618b1.png');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    "import __rslib_asset__ from '../static/image/image.c74653c1712618b1.png';
+    export default __rslib_asset__;
     "
   `);
   // cjs
@@ -203,56 +92,7 @@ test('set the assets filename with hash', async () => {
     /assets\/image\.cjs/,
   );
   expect(imageCjs1).toMatchInlineSnapshot(`
-    ""use strict";
-    var __webpack_modules__ = {
-        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../static/image/image.c74653c1712618b1.png');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-        var document = __webpack_require__.g.document;
-        if (!scriptUrl && document) {
-            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
-            if (!scriptUrl) {
-                var scripts = document.getElementsByTagName("script");
-                if (scripts.length) {
-                    var i = scripts.length - 1;
-                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
-                }
-            }
-        }
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    var __webpack_exports__ = __webpack_require__("./src/assets/image.png?__rslib_entry__");
-    var __webpack_export_target__ = exports;
-    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
-    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
-        value: true
-    });
+    "module.exports = require('../static/image/image.c74653c1712618b1.png');
     "
   `);
 });
@@ -279,39 +119,8 @@ test('set the assets output path', async () => {
     /assets\/image\.js/,
   );
   expect(imageJs1).toMatchInlineSnapshot(`
-    "var __webpack_modules__ = {
-        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../assets/bundleless/image.png');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    "import __rslib_asset__ from '../assets/bundleless/image.png';
+    export default __rslib_asset__;
     "
   `);
   // cjs
@@ -320,56 +129,7 @@ test('set the assets output path', async () => {
     /assets\/image\.cjs/,
   );
   expect(imageCjs1).toMatchInlineSnapshot(`
-    ""use strict";
-    var __webpack_modules__ = {
-        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
-            module.exports = require('../assets/bundleless/image.png');
-        }
-    };
-    var __webpack_module_cache__ = {};
-    function __webpack_require__(moduleId) {
-        var cachedModule = __webpack_module_cache__[moduleId];
-        if (void 0 !== cachedModule) return cachedModule.exports;
-        var module = __webpack_module_cache__[moduleId] = {
-            exports: {}
-        };
-        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-        return module.exports;
-    }
-    (()=>{
-        __webpack_require__.g = function() {
-            if ('object' == typeof globalThis) return globalThis;
-            try {
-                return this || new Function('return this')();
-            } catch (e) {
-                if ('object' == typeof window) return window;
-            }
-        }();
-    })();
-    (()=>{
-        var scriptUrl;
-        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-        var document = __webpack_require__.g.document;
-        if (!scriptUrl && document) {
-            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
-            if (!scriptUrl) {
-                var scripts = document.getElementsByTagName("script");
-                if (scripts.length) {
-                    var i = scripts.length - 1;
-                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
-                }
-            }
-        }
-        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
-        __webpack_require__.p = scriptUrl + '../';
-    })();
-    var __webpack_exports__ = __webpack_require__("./src/assets/image.png?__rslib_entry__");
-    var __webpack_export_target__ = exports;
-    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
-    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
-        value: true
-    });
+    "module.exports = require('../assets/bundleless/image.png');
     "
   `);
 });
