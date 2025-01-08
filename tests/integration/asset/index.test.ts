@@ -2,80 +2,257 @@ import { join } from 'node:path';
 import { buildAndGetResults, queryContent } from 'test-helper';
 import { expect, test } from 'vitest';
 
-test.only('set the size threshold to inline static assets', async () => {
+test('set the size threshold to inline static assets', async () => {
   const fixturePath = join(__dirname, 'limit');
   const { contents } = await buildAndGetResults({ fixturePath });
 
-  // 0. bundle esm default
-  const { content: indexJs0 } = queryContent(
-    contents.esm0!,
-    /index\.js/,
-  );
+  // 0. bundle default
+  // esm
+  const { content: indexJs0 } = queryContent(contents.esm0!, /index\.js/);
   expect(indexJs0).toContain(
     "import logo_namespaceObject from './static/svg/logo.svg';",
   );
-
-  // 1. bundle esm inline
-  const { content: indexJs1 } = queryContent(
-    contents.esm1!,
-    /index\.js/,
+  // cjs
+  const { content: indexCjs0 } = queryContent(contents.cjs0!, /index\.cjs/);
+  expect(indexCjs0).toContain(
+    "const logo_namespaceObject = require('./static/svg/logo.svg');",
   );
+
+  // 1. bundle inline
+  // esm
+  const { content: indexJs1 } = queryContent(contents.esm1!, /index\.js/);
   expect(indexJs1).toContain(
+    'const logo_namespaceObject = "data:image/svg+xml;base64',
+  );
+  // cjs
+  const { content: indexCjs1 } = queryContent(contents.cjs1!, /index\.cjs/);
+  expect(indexCjs1).toContain(
     'const logo_namespaceObject = "data:image/svg+xml;base64',
   );
 
   // 2. bundleless esm default
-  const { content: indexJs2 } = queryContent(
-    contents.esm1!,
-    /index\.js/,
-  );
-  const { content: logoJs2 } = queryContent(
-    contents.esm2!,
-    /assets\/logo\.js/,
-  );
+  // esm
+  const { content: indexJs2 } = queryContent(contents.esm2!, /index\.js/);
+  const { content: logoJs2 } = queryContent(contents.esm2!, /assets\/logo\.js/);
   expect(indexJs2).toMatchInlineSnapshot(`
-    "const logo_namespaceObject = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4NDEuOSA1OTUuMyI+CiAgICA8ZyBmaWxsPSIjNjFEQUZCIj4KICAgICAgICA8cGF0aCBkPSJNNjY2LjMgMjk2LjVjMC0zMi41LTQwLjctNjMuMy0xMDMuMS04Mi40IDE0LjQtNjMuNiA4LTExNC4yLTIwLjItMTMwLjQtNi41LTMuOC0xNC4xLTUuNi0yMi40LTUuNnYyMi4zYzQuNiAwIDguMy45IDExLjQgMi42IDEzLjYgNy44IDE5LjUgMzcuNSAxNC45IDc1LjctMS4xIDkuNC0yLjkgMTkuMy01LjEgMjkuNC0xOS42LTQuOC00MS04LjUtNjMuNS0xMC45LTEzLjUtMTguNS0yNy41LTM1LjMtNDEuNi01MCAzMi42LTMwLjMgNjMuMi00Ni45IDg0LTQ2LjlWNzhjLTI3LjUgMC02My41IDE5LjYtOTkuOSA1My42LTM2LjQtMzMuOC03Mi40LTUzLjItOTkuOS01My4ydjIyLjNjMjAuNyAwIDUxLjQgMTYuNSA4NCA0Ni42LTE0IDE0LjctMjggMzEuNC00MS4zIDQ5LjktMjIuNiAyLjQtNDQgNi4xLTYzLjYgMTEtMi4zLTEwLTQtMTkuNy01LjItMjktNC43LTM4LjIgMS4xLTY3LjkgMTQuNi03NS44IDMtMS44IDYuOS0yLjYgMTEuNS0yLjZWNzguNWMtOC40IDAtMTYgMS44LTIyLjYgNS42LTI4LjEgMTYuMi0zNC40IDY2LjctMTkuOSAxMzAuMS02Mi4yIDE5LjItMTAyLjcgNDkuOS0xMDIuNyA4Mi4zIDAgMzIuNSA0MC43IDYzLjMgMTAzLjEgODIuNC0xNC40IDYzLjYtOCAxMTQuMiAyMC4yIDEzMC40IDYuNSAzLjggMTQuMSA1LjYgMjIuNSA1LjYgMjcuNSAwIDYzLjUtMTkuNiA5OS45LTUzLjYgMzYuNCAzMy44IDcyLjQgNTMuMiA5OS45IDUzLjIgOC40IDAgMTYtMS44IDIyLjYtNS42IDI4LjEtMTYuMiAzNC40LTY2LjcgMTkuOS0xMzAuMSA2Mi0xOS4xIDEwMi41LTQ5LjkgMTAyLjUtODIuM3ptLTEzMC4yLTY2LjdjLTMuNyAxMi45LTguMyAyNi4yLTEzLjUgMzkuNS00LjEtOC04LjQtMTYtMTMuMS0yNC00LjYtOC05LjUtMTUuOC0xNC40LTIzLjQgMTQuMiAyLjEgMjcuOSA0LjcgNDEgNy45em0tNDUuOCAxMDYuNWMtNy44IDEzLjUtMTUuOCAyNi4zLTI0LjEgMzguMi0xNC45IDEuMy0zMCAyLTQ1LjIgMi0xNS4xIDAtMzAuMi0uNy00NS0xLjktOC4zLTExLjktMTYuNC0yNC42LTI0LjItMzgtNy42LTEzLjEtMTQuNS0yNi40LTIwLjgtMzkuOCA2LjItMTMuNCAxMy4yLTI2LjggMjAuNy0zOS45IDcuOC0xMy41IDE1LjgtMjYuMyAyNC4xLTM4LjIgMTQuOS0xLjMgMzAtMiA0NS4yLTIgMTUuMSAwIDMwLjIuNyA0NSAxLjkgOC4zIDExLjkgMTYuNCAyNC42IDI0LjIgMzggNy42IDEzLjEgMTQuNSAyNi40IDIwLjggMzkuOC02LjMgMTMuNC0xMy4yIDI2LjgtMjAuNyAzOS45em0zMi4zLTEzYzUuNCAxMy40IDEwIDI2LjggMTMuOCAzOS44LTEzLjEgMy4yLTI2LjkgNS45LTQxLjIgOCA0LjktNy43IDkuOC0xNS42IDE0LjQtMjMuNyA0LjYtOCA4LjktMTYuMSAxMy0yNC4xek00MjEuMiA0MzBjLTkuMy05LjYtMTguNi0yMC4zLTI3LjgtMzIgOSAuNCAxOC4yLjcgMjcuNS43IDkuNCAwIDE4LjctLjIgMjcuOC0uNy05IDExLjctMTguMyAyMi40LTI3LjUgMzJ6bS03NC40LTU4LjljLTE0LjItMi4xLTI3LjktNC43LTQxLTcuOSAzLjctMTIuOSA4LjMtMjYuMiAxMy41LTM5LjUgNC4xIDggOC40IDE2IDEzLjEgMjQgNC43IDggOS41IDE1LjggMTQuNCAyMy40ek00MjAuNyAxNjNjOS4zIDkuNiAxOC42IDIwLjMgMjcuOCAzMi05LS40LTE4LjItLjctMjcuNS0uNy05LjQgMC0xOC43LjItMjcuOC43IDktMTEuNyAxOC4zLTIyLjQgMjcuNS0zMnptLTc0IDU4LjljLTQuOSA3LjctOS44IDE1LjYtMTQuNCAyMy43LTQuNiA4LTguOSAxNi0xMyAyNC01LjQtMTMuNC0xMC0yNi44LTEzLjgtMzkuOCAxMy4xLTMuMSAyNi45LTUuOCA0MS4yLTcuOXptLTkwLjUgMTI1LjJjLTM1LjQtMTUuMS01OC4zLTM0LjktNTguMy01MC42IDAtMTUuNyAyMi45LTM1LjYgNTguMy01MC42IDguNi0zLjcgMTgtNyAyNy43LTEwLjEgNS43IDE5LjYgMTMuMiA0MCAyMi41IDYwLjktOS4yIDIwLjgtMTYuNiA0MS4xLTIyLjIgNjAuNi05LjktMy4xLTE5LjMtNi41LTI4LTEwLjJ6TTMxMCA0OTBjLTEzLjYtNy44LTE5LjUtMzcuNS0xNC45LTc1LjcgMS4xLTkuNCAyLjktMTkuMyA1LjEtMjkuNCAxOS42IDQuOCA0MSA4LjUgNjMuNSAxMC45IDEzLjUgMTguNSAyNy41IDM1LjMgNDEuNiA1MC0zMi42IDMwLjMtNjMuMiA0Ni45LTg0IDQ2LjktNC41LS4xLTguMy0xLTExLjMtMi43em0yMzcuMi03Ni4yYzQuNyAzOC4yLTEuMSA2Ny45LTE0LjYgNzUuOC0zIDEuOC02LjkgMi42LTExLjUgMi42LTIwLjcgMC01MS40LTE2LjUtODQtNDYuNiAxNC0xNC43IDI4LTMxLjQgNDEuMy00OS45IDIyLjYtMi40IDQ0LTYuMSA2My42LTExIDIuMyAxMC4xIDQuMSAxOS44IDUuMiAyOS4xem0zOC41LTY2LjdjLTguNiAzLjctMTggNy0yNy43IDEwLjEtNS43LTE5LjYtMTMuMi00MC0yMi41LTYwLjkgOS4yLTIwLjggMTYuNi00MS4xIDIyLjItNjAuNiA5LjkgMy4xIDE5LjMgNi41IDI4LjEgMTAuMiAzNS40IDE1LjEgNTguMyAzNC45IDU4LjMgNTAuNi0uMSAxNS43LTIzIDM1LjYtNTguNCA1MC42ek0zMjAuOCA3OC40eiIvPgogICAgICAgIDxjaXJjbGUgY3g9IjQyMC45IiBjeT0iMjk2LjUiIHI9IjQ1LjciLz4KICAgICAgICA8cGF0aCBkPSJNNTIwLjUgNzguMXoiLz4KICAgIDwvZz4KPC9zdmc+Cg==";
-    const src_rslib_entry_ = logo_namespaceObject;
+    "import * as __WEBPACK_EXTERNAL_MODULE__assets_logo_js_450929b7__ from "./assets/logo.js";
+    const src_rslib_entry_ = __WEBPACK_EXTERNAL_MODULE__assets_logo_js_450929b7__["default"];
     export { src_rslib_entry_ as default };
     "
   `);
   expect(logoJs2).toMatchInlineSnapshot(`
-    "import __rslib_asset__ from '../static/svg/logo.svg';
-    export default __rslib_asset__;
+    "var __webpack_modules__ = {
+        "./src/assets/logo.svg?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../static/svg/logo.svg');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    __webpack_require__("./src/assets/logo.svg?__rslib_entry__");
     "
   `);
-
-  // 3. bundleless esm inline
-  const { content: indexJs3 } = queryContent(
-    contents.esm3!,
-    /index\.js/,
+  // cjs
+  const { content: indexCjs2 } = queryContent(contents.cjs2!, /index\.cjs/);
+  const { content: logoCjs2 } = queryContent(
+    contents.cjs2!,
+    /assets\/logo\.cjs/,
   );
-  const { content: logoJs3 } = queryContent(
-    contents.esm3!,
-    /assets\/logo\.js/,
+  expect(indexCjs2).toContain(
+    'const logo_cjs_namespaceObject = require("./assets/logo.cjs");',
   );
-  expect(indexJs3).toMatchInlineSnapshot();
-  expect(logoJs3).toMatchInlineSnapshot();
+  expect(logoCjs2).toMatchInlineSnapshot(`
+    ""use strict";
+    var __webpack_modules__ = {
+        "./src/assets/logo.svg?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../static/svg/logo.svg');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+        var document = __webpack_require__.g.document;
+        if (!scriptUrl && document) {
+            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
+            if (!scriptUrl) {
+                var scripts = document.getElementsByTagName("script");
+                if (scripts.length) {
+                    var i = scripts.length - 1;
+                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
+                }
+            }
+        }
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    var __webpack_exports__ = __webpack_require__("./src/assets/logo.svg?__rslib_entry__");
+    var __webpack_export_target__ = exports;
+    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
+    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
+        value: true
+    });
+    "
+  `);
 });
 
-test('set the assets name', async () => {
-  const fixturePath = join(__dirname, 'name');
+test('set the assets filename with hash', async () => {
+  const fixturePath = join(__dirname, 'hash');
   const { contents } = await buildAndGetResults({ fixturePath });
-
-  // bundle
-  expect(Object.values(contents.esm0!)[0]).toContain(
+  // 0. bundle default
+  // esm
+  const { content: indexJs0 } = queryContent(contents.esm0!, /index\.js/);
+  expect(indexJs0).toContain(
     "import image_namespaceObject from './static/image/image.c74653c1.png';",
   );
+  // cjs
+  const { content: indexCjs0 } = queryContent(contents.cjs0!, /index\.cjs/);
+  expect(indexCjs0).toContain(
+    "const image_namespaceObject = require('./static/image/image.c74653c1.png');",
+  );
 
-  // bundleless
-  expect(Object.values(contents.esm1!)[0]).toMatchInlineSnapshot(`
-    "import * as __WEBPACK_EXTERNAL_MODULE_react_jsx_runtime_225474f2__ from "react/jsx-runtime";
-    import * as __WEBPACK_EXTERNAL_MODULE__assets_image_js_ed700b81__ from "../../../../assets/image.js";
-    const src_rslib_entry_ = ()=>/*#__PURE__*/ (0, __WEBPACK_EXTERNAL_MODULE_react_jsx_runtime_225474f2__.jsx)("img", {
-            src: __WEBPACK_EXTERNAL_MODULE__assets_image_js_ed700b81__["default"],
-            alt: ""
-        });
-    export { src_rslib_entry_ as default };
+  // 1. bundleless default
+  // esm
+  const { content: imageJs1 } = queryContent(
+    contents.esm1!,
+    /assets\/image\.js/,
+  );
+  expect(imageJs1).toMatchInlineSnapshot(`
+    "var __webpack_modules__ = {
+        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../static/image/image.c74653c1712618b1.png');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    "
+  `);
+  // cjs
+  const { content: imageCjs1 } = queryContent(
+    contents.cjs1!,
+    /assets\/image\.cjs/,
+  );
+  expect(imageCjs1).toMatchInlineSnapshot(`
+    ""use strict";
+    var __webpack_modules__ = {
+        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../static/image/image.c74653c1712618b1.png');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+        var document = __webpack_require__.g.document;
+        if (!scriptUrl && document) {
+            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
+            if (!scriptUrl) {
+                var scripts = document.getElementsByTagName("script");
+                if (scripts.length) {
+                    var i = scripts.length - 1;
+                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
+                }
+            }
+        }
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    var __webpack_exports__ = __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    var __webpack_export_target__ = exports;
+    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
+    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
+        value: true
+    });
     "
   `);
 });
@@ -83,44 +260,167 @@ test('set the assets name', async () => {
 test('set the assets output path', async () => {
   const fixturePath = join(__dirname, 'path');
   const { contents } = await buildAndGetResults({ fixturePath });
-
-  // bundle
-  expect(Object.values(contents.esm0!)[0]).toContain(
-    'const image_namespaceObject = __webpack_require__.p + "assets/bundle/image.png";',
+  // 0. bundle default
+  // esm
+  const { content: indexJs0 } = queryContent(contents.esm0!, /index\.js/);
+  expect(indexJs0).toContain(
+    "import image_namespaceObject from './assets/bundle/image.png';",
+  );
+  // cjs
+  const { content: indexCjs0 } = queryContent(contents.cjs0!, /index\.cjs/);
+  expect(indexCjs0).toContain(
+    "const image_namespaceObject = require('./assets/bundle/image.png');",
   );
 
-  // bundleless
-  expect(Object.values(contents.esm1!)[0]).toContain(
-    'const image_namespaceObject = __webpack_require__.p + "assets/bundleless/image.png";',
+  // 1. bundleless default
+  // esm
+  const { content: imageJs1 } = queryContent(
+    contents.esm1!,
+    /assets\/image\.js/,
   );
+  expect(imageJs1).toMatchInlineSnapshot(`
+    "var __webpack_modules__ = {
+        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../assets/bundleless/image.png');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if ("string" == typeof import.meta.url) scriptUrl = import.meta.url;
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    "
+  `);
+  // cjs
+  const { content: imageCjs1 } = queryContent(
+    contents.cjs1!,
+    /assets\/image\.cjs/,
+  );
+  expect(imageCjs1).toMatchInlineSnapshot(`
+    ""use strict";
+    var __webpack_modules__ = {
+        "./src/assets/image.png?__rslib_entry__": function(module, __unused_webpack_exports, __webpack_require__) {
+            module.exports = require('../assets/bundleless/image.png');
+        }
+    };
+    var __webpack_module_cache__ = {};
+    function __webpack_require__(moduleId) {
+        var cachedModule = __webpack_module_cache__[moduleId];
+        if (void 0 !== cachedModule) return cachedModule.exports;
+        var module = __webpack_module_cache__[moduleId] = {
+            exports: {}
+        };
+        __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+        return module.exports;
+    }
+    (()=>{
+        __webpack_require__.g = function() {
+            if ('object' == typeof globalThis) return globalThis;
+            try {
+                return this || new Function('return this')();
+            } catch (e) {
+                if ('object' == typeof window) return window;
+            }
+        }();
+    })();
+    (()=>{
+        var scriptUrl;
+        if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+        var document = __webpack_require__.g.document;
+        if (!scriptUrl && document) {
+            if (document.currentScript && 'SCRIPT' === document.currentScript.tagName.toUpperCase()) scriptUrl = document.currentScript.src;
+            if (!scriptUrl) {
+                var scripts = document.getElementsByTagName("script");
+                if (scripts.length) {
+                    var i = scripts.length - 1;
+                    while(i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl)))scriptUrl = scripts[i--].src;
+                }
+            }
+        }
+        if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+        scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\\?.*$/, "").replace(/\\/[^\\/]+$/, "/");
+        __webpack_require__.p = scriptUrl + '../';
+    })();
+    var __webpack_exports__ = __webpack_require__("./src/assets/image.png?__rslib_entry__");
+    var __webpack_export_target__ = exports;
+    for(var __webpack_i__ in __webpack_exports__)__webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
+    if (__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, '__esModule', {
+        value: true
+    });
+    "
+  `);
 });
 
 test('set the assets public path', async () => {
   const fixturePath = join(__dirname, 'public-path');
   const { contents } = await buildAndGetResults({ fixturePath });
 
-  // bundle
-  expect(Object.values(contents.esm0!)[0]).toContain(
-    "import image_namespaceObject from './assets/bundle/logo.svg';",
-  );
+  const { content: indexUmdJs } = queryContent(contents.umd!, /index\.js/);
 
-  // bundleless
-  expect(Object.values(contents.esm1!)[0]).toMatchInlineSnapshot();
+  // umd
+  expect(indexUmdJs).toContain(
+    '__webpack_require__.p = "/public/path/bundleless/";',
+  );
+  expect(indexUmdJs).toContain(
+    'const image_namespaceObject = __webpack_require__.p + "static/image/image.png";',
+  );
 });
 
 test('use svgr', async () => {
   const fixturePath = join(__dirname, 'svgr');
   const { contents } = await buildAndGetResults({ fixturePath });
 
-  // bundle -- default export with react query
-  expect(Object.values(contents.esm0!)[0]).toMatchSnapshot();
+  // 0. bundle
+  // esm
+  const { content: indexJs } = queryContent(contents.esm0!, /index\.js/);
+  expect(indexJs).matchSnapshot();
+  // cjs
+  const { content: indexCjs } = queryContent(contents.cjs0!, /index\.cjs/);
+  expect(indexCjs).matchSnapshot();
 
-  // bundleless -- default export with react query
-  expect(Object.values(contents.esm1!)[0]).toMatchSnapshot();
+  // 1. bundleless
+  const { content: namedImportJs } = queryContent(
+    contents.esm1!,
+    /namedImport\.js/,
+  );
+  expect(namedImportJs).toMatchSnapshot();
+  const { content: defaultImportJs } = queryContent(
+    contents.esm1!,
+    /namedImport\.js/,
+  );
+  expect(defaultImportJs).toMatchSnapshot();
 
-  // bundle -- named export
-  expect(Object.values(contents.esm2!)[0]).toMatchSnapshot();
-
-  // bundleless -- named export
-  expect(Object.values(contents.esm3!)[0]).toMatchSnapshot();
+  const { content: namedImportCjs } = queryContent(
+    contents.cjs1!,
+    /namedImport\.cjs/,
+  );
+  expect(namedImportCjs).toMatchSnapshot();
+  const { content: defaultImportCjs } = queryContent(
+    contents.cjs1!,
+    /namedImport\.cjs/,
+  );
+  expect(defaultImportCjs).toMatchSnapshot();
 });

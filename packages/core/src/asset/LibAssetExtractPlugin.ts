@@ -28,7 +28,7 @@ function extractAssetFilenames(content: string): string[] {
 
 // 2. bundle: concatenated
 const CONCATENATED_PATTERN: RegExp =
-  /(const|var) (\w+) = __webpack_require__\.p\s\+\s["'](.+)["']/g;
+  /(const|var)\s(\w+)\s=\s\(?__webpack_require__\.p\s\+\s["'](.+)["']\)?/g;
 const concatenatedEsmReplaceTemplate = (variableName: string, url: string) =>
   `import ${variableName} from '${url}';`;
 const concatenatedCjsReplaceTemplate = (
@@ -46,8 +46,9 @@ const nonConcatenatedReplaceTemplate = (url: string) =>
 const pluginName = 'LIB_ASSET_EXTRACT_PLUGIN';
 
 type Options = {
-  // just for perf, in bundleless we can replace the entire file
+  // bundle and isUsingSvgr options: just for perf, in bundleless we can replace the entire file directly
   bundle: boolean;
+  isUsingSvgr: boolean;
 };
 
 class LibAssetExtractPlugin implements Rspack.RspackPluginInstance {
@@ -63,8 +64,9 @@ class LibAssetExtractPlugin implements Rspack.RspackPluginInstance {
         const chunkAsset = Object.keys(assets).filter((name) =>
           /js$/.test(name),
         );
+        const isEsmFormat = compilation.options.output.module;
+        const canEntireFileReplacedDirectly = !this.options.bundle && !this.options.isUsingSvgr;
         for (const name of chunkAsset) {
-          const isEsmFormat = compilation.options.output.module;
           const undoPath = getUndoPath(
             name,
             compilation.outputOptions.path!,
@@ -72,10 +74,12 @@ class LibAssetExtractPlugin implements Rspack.RspackPluginInstance {
           );
           compilation.updateAsset(name, (old) => {
             const oldSource = old.source().toString();
+            console.log(canEntireFileReplacedDirectly, this.options)
 
             // bundleless
-            if (this.options.bundle === false) {
+            if (canEntireFileReplacedDirectly) {
               const assetFilenames = extractAssetFilenames(oldSource);
+              // asset/resource
               if (assetFilenames.length === 0) {
                 return old;
               }

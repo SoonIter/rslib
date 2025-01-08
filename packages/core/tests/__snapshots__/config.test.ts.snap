@@ -220,6 +220,7 @@ exports[`Should compose create Rsbuild config correctly > Merge Rsbuild config i
                 "name": "LIB_ASSET_EXTRACT_PLUGIN",
                 "options": {
                   "bundle": true,
+                  "isUsingSvgr": false,
                 },
               },
             ],
@@ -466,6 +467,7 @@ exports[`Should compose create Rsbuild config correctly > Merge Rsbuild config i
                 "name": "LIB_ASSET_EXTRACT_PLUGIN",
                 "options": {
                   "bundle": true,
+                  "isUsingSvgr": false,
                 },
               },
             ],

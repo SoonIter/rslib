@@ -40,6 +40,7 @@
     "pnpm-lock.yaml": "pnpm dedupe --check"
   },
   "devDependencies": {
+    "@rsdoctor/rspack-plugin": "0.4.13",
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.11",
     "@types/fs-extra": "^11.0.4",
